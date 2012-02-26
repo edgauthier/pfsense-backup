@@ -61,6 +61,8 @@ def _usage():
         -h | --help
 
         -s <server url> | --server <server url>
+            The base URL for the pfSense installation.
+            Example: https://pfsense.example.com/
 
         -u <username> | --username <username>
         
