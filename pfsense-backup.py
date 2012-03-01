@@ -49,8 +49,10 @@ class PFSenseBackup(object):
         self.site = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
         login_data = urllib.urlencode({'usernamefld' : self.username, 'passwordfld' : self.password, 'login' : 'Login'})
         login_page = self.server + '/index.php'
-        self.site.open(login_page, login_data)
-        #TODO test if the login succeeded
+        result = self.site.open(login_page, login_data)
+        if "username or password incorrect" in result.read().lower():
+            print "Invalid username or password"
+            sys.exit(1)
 
 def _usage():
     print """
