@@ -105,7 +105,7 @@ def _options(args):
             _usage()
             sys.exit(2)
 
-    # prompt for missing parameters if missing
+    # prompt for missing parameters
     if not server:
         server = raw_input('Server URL: ')
     if not username:
