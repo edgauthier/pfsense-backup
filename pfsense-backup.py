@@ -15,14 +15,11 @@ class PFSenseBackup(object):
 
     def __init__(self, server, username, password):
         """
-        Stores the username and password, and then authenticates.
+        Authenticates with the pfSense server.
         """
         self.server = server
-        self.username = username
-        self.password = password
-        self._authenticate()
+        self._authenticate(username, password)
     
-    #TODO - export config
     def backup_config(self, directory = None):
         backup_page = self.server + '/diag_backup.php'
         backup_file = self._get_backup_file(directory)
@@ -44,10 +41,10 @@ class PFSenseBackup(object):
         options['Submit'] = 'Download configuration'
         return urllib.urlencode(options)
 
-    def _authenticate(self):
+    def _authenticate(self, username, password):
         cj = cookielib.CookieJar()
         self.site = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
-        login_data = urllib.urlencode({'usernamefld' : self.username, 'passwordfld' : self.password, 'login' : 'Login'})
+        login_data = urllib.urlencode({'usernamefld' : username, 'passwordfld' : password, 'login' : 'Login'})
         login_page = self.server + '/index.php'
         result = self.site.open(login_page, login_data)
         if "username or password incorrect" in result.read().lower():
