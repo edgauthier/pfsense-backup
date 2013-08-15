@@ -20,16 +20,18 @@ class PFSenseBackup(object):
         self.server = server
         self._authenticate(username, password)
     
-    def backup_config(self, directory = None):
+    def backup_config(self, directory = None, target_file = None):
         backup_page = self.server + '/diag_backup.php'
-        backup_file = self._get_backup_file(directory)
+        backup_file = self._get_backup_file(directory, target_file)
         backup_options = self._get_backup_options()
         with open(backup_file, 'w') as output:
             resp = self.site.open(backup_page, backup_options)
             output.writelines(resp)
 
-    def _get_backup_file(self, directory):
-        backup_file = 'pfsense-backup.xml'
+    def _get_backup_file(self, directory, target_file):
+        backup_file = target_file
+	if backup_file == None:
+	    backup_file = 'pfsense-backup.xml'
         if directory != None:
             backup_file = os.path.join(directory, backup_file)
         return backup_file
@@ -70,20 +72,23 @@ def _usage():
         -d | --directory <directory>
             Defaults to current directory.
 
+	-f | --file <file>
+	    Defaults to 'pfsense-backup.xml'.
+
     """
 
 def _options(args):
     """Processes command line arguments"""
 
     try:
-        opts, args = getopt.getopt(args, 's:u:p:d:h',['server=','username=','password=','directory=','help'])
+        opts, args = getopt.getopt(args, 's:u:p:d:f:h',['server=','username=','password=','directory=','file=','help'])
     except getopt.GetoptError, e:
         print str(e)
         _usage()
         sys.exit(2)
 
     # Defaults
-    server = username = password = directory = None
+    server = username = password = directory = target_file = None
     
     for o,v in opts:
         if o in ('-s', '--server'):
@@ -98,6 +103,8 @@ def _options(args):
             else:
                 print "Destination directory does not exist."
                 sys.exit(2)
+	elif o in ('-f', '--file'):
+	    target_file = v
         elif o in ('-h', '--help'):
             _usage()
             sys.exit(2)
@@ -113,9 +120,9 @@ def _options(args):
     if not password:
         password = getpass.getpass('Password: ')
 
-    return (server, username, password, directory)
+    return (server, username, password, directory, target_file)
 
 if __name__ == '__main__':
-    server, username, password, directory = _options(sys.argv[1:])
+    server, username, password, directory, target_file = _options(sys.argv[1:])
     exporter = PFSenseBackup(server,username,password)
-    exporter.backup_config(directory)
+    exporter.backup_config(directory, target_file)
