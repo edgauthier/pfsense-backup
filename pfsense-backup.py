@@ -30,8 +30,8 @@ class PFSenseBackup(object):
 
     def _get_backup_file(self, directory, target_file):
         backup_file = target_file
-	if backup_file == None:
-	    backup_file = 'pfsense-backup.xml'
+        if backup_file == None:
+            backup_file = 'pfsense-backup.xml'
         if directory != None:
             backup_file = os.path.join(directory, backup_file)
         return backup_file
@@ -72,8 +72,8 @@ def _usage():
         -d | --directory <directory>
             Defaults to current directory.
 
-	-f | --file <file>
-	    Defaults to 'pfsense-backup.xml'.
+        -f | --file <file>
+            Defaults to 'pfsense-backup.xml'.
 
     """
 
@@ -103,8 +103,8 @@ def _options(args):
             else:
                 print "Destination directory does not exist."
                 sys.exit(2)
-	elif o in ('-f', '--file'):
-	    target_file = v
+        elif o in ('-f', '--file'):
+            target_file = v
         elif o in ('-h', '--help'):
             _usage()
             sys.exit(2)
