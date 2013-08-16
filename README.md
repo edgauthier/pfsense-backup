@@ -33,3 +33,6 @@ Usage
         -d | --directory <directory>
             Defaults to current directory.
 
+        -f | --file <file>
+            Defaults to 'pfsense-backup.xml'
+
