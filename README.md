@@ -8,10 +8,17 @@ specified, they will be promped for interactively.
 Configure cron to run this script with the necessary parameters to backup your
 pfSense configuration and stastics on a regular basis.
 
+Requirements
+============
+
+Requires BeautifulSoup to be installed:
+
+    pip install BeautifulSoup
+
 Compatability
 =============
 
-This has only been tested against pfSense 2.0.1.
+This has been updated to support the new CSRF token in the pfSense login page and tested with 2.1.3-RELEASE.
 
 Usage
 =====

@@ -7,6 +7,7 @@ import getpass
 import urllib
 import urllib2
 import cookielib
+from BeautifulSoup import BeautifulSoup
 
 class PFSenseBackup(object):
     """
@@ -18,6 +19,9 @@ class PFSenseBackup(object):
         Authenticates with the pfSense server.
         """
         self.server = server
+        cj = cookielib.CookieJar()
+        cookies = urllib2.HTTPCookieProcessor(cj)
+        self.site = urllib2.build_opener(cookies)
         self._authenticate(username, password)
     
     def backup_config(self, directory = None, target_file = None):
@@ -43,11 +47,27 @@ class PFSenseBackup(object):
         options['Submit'] = 'Download configuration'
         return urllib.urlencode(options)
 
+    def _get_csrf_token(self, page):
+        result = self.site.open(page)
+        html = result.read()
+        parsed = BeautifulSoup(html)
+        csrf_input = parsed.body.find('input', attrs={'name':'__csrf_magic'})
+        csrf_token = None
+        try:
+            csrf_token = [v for n, v in csrf_input.attrs if n == 'value'][0]
+        except IndexError:
+            pass
+        return csrf_token
+
     def _authenticate(self, username, password):
-        cj = cookielib.CookieJar()
-        self.site = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
-        login_data = urllib.urlencode({'usernamefld' : username, 'passwordfld' : password, 'login' : 'Login'})
         login_page = self.server + '/index.php'
+        csrf_token = self._get_csrf_token(login_page)
+        input_params = {}
+        input_params['login'] = 'Login'
+        input_params['__csrf_magic'] = csrf_token
+        input_params['usernamefld'] = username
+        input_params['passwordfld'] = password
+        login_data = urllib.urlencode(input_params)
         result = self.site.open(login_page, login_data)
         if "username or password incorrect" in result.read().lower():
             print "Invalid username or password"
