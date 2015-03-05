@@ -24,10 +24,10 @@ class PFSenseBackup(object):
         self.site = urllib2.build_opener(cookies)
         self._authenticate(username, password)
     
-    def backup_config(self, directory = None, target_file = None):
+    def backup_config(self, directory = None, target_file = None, rrd = None):
         backup_page = self.server + '/diag_backup.php'
         backup_file = self._get_backup_file(directory, target_file)
-        backup_options = self._get_backup_options()
+        backup_options = self._get_backup_options(rrd)
         with open(backup_file, 'w') as output:
             resp = self.site.open(backup_page, backup_options)
             output.writelines(resp)
@@ -40,10 +40,11 @@ class PFSenseBackup(object):
             backup_file = os.path.join(directory, backup_file)
         return backup_file
 
-    def _get_backup_options(self):
+    def _get_backup_options(self, rrd):
         options = {}
         options['backuparea'] = ''
-        options['donotbackuprrd'] = ''
+        if rrd == None:				
+	    options['donotbackuprrd'] = 'on'		# I found it necessary to set this to on to prevent the download of RRD data
         options['Submit'] = 'Download configuration'
         return urllib.urlencode(options)
 
@@ -92,7 +93,10 @@ def _usage():
         -d | --directory <directory>
             Defaults to current directory.
 
-        -f | --file <file>
+        -r | --rrd
+            Include RRD Data
+        
+	-f | --file <file>
             Defaults to 'pfsense-backup.xml'.
 
     """
@@ -101,14 +105,14 @@ def _options(args):
     """Processes command line arguments"""
 
     try:
-        opts, args = getopt.getopt(args, 's:u:p:d:f:h',['server=','username=','password=','directory=','file=','help'])
+        opts, args = getopt.gnu_getopt(args, 's:u:p:d:f:rh',['server=','username=','password=','directory=','file=','rrd','help'])
     except getopt.GetoptError, e:
         print str(e)
         _usage()
         sys.exit(2)
 
     # Defaults
-    server = username = password = directory = target_file = None
+    server = username = password = directory = target_file = rrd = None
     
     for o,v in opts:
         if o in ('-s', '--server'):
@@ -125,6 +129,8 @@ def _options(args):
                 sys.exit(2)
         elif o in ('-f', '--file'):
             target_file = v
+        elif o in ('-r', '--rrd'):
+            rrd = v
         elif o in ('-h', '--help'):
             _usage()
             sys.exit(2)
@@ -140,9 +146,9 @@ def _options(args):
     if not password:
         password = getpass.getpass('Password: ')
 
-    return (server, username, password, directory, target_file)
+    return (server, username, password, directory, target_file, rrd)
 
 if __name__ == '__main__':
-    server, username, password, directory, target_file = _options(sys.argv[1:])
+    server, username, password, directory, target_file, rrd = _options(sys.argv[1:])
     exporter = PFSenseBackup(server,username,password)
-    exporter.backup_config(directory, target_file)
+    exporter.backup_config(directory, target_file, rrd)
