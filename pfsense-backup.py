@@ -42,9 +42,11 @@ class PFSenseBackup(object):
 
     def _get_backup_options(self, rrd):
         options = {}
-        options['backuparea'] = ''
-        if rrd == None:				
-	    options['donotbackuprrd'] = 'on'		# I found it necessary to set this to on to prevent the download of RRD data
+        options['backuparea'] = '' # Backup everything
+        if rrd:				
+            options['donotbackuprrd'] = '' # Clear the option to skip rrd data if we want to include it
+        else:
+            options['donotbackuprrd'] = 'on' # otherwise, make sure it's enabled
         options['Submit'] = 'Download configuration'
         return urllib.urlencode(options)
 
@@ -130,7 +132,7 @@ def _options(args):
         elif o in ('-f', '--file'):
             target_file = v
         elif o in ('-r', '--rrd'):
-            rrd = v
+            rrd = True
         elif o in ('-h', '--help'):
             _usage()
             sys.exit(2)
