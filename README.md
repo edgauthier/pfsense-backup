@@ -8,6 +8,8 @@ specified, they will be promped for interactively.
 Configure cron to run this script with the necessary parameters to backup your
 pfSense configuration and stastics on a regular basis.
 
+**NOTE**: RRD data is no longer included by default, but can be included via command line option. See below for more details.
+
 Requirements
 ============
 
@@ -18,7 +20,7 @@ Requires BeautifulSoup to be installed:
 Compatability
 =============
 
-This has been updated to support the new CSRF token in the pfSense login page and tested with 2.1.3-RELEASE and 2.1.5-RELEASE.
+This has been updated to support the new CSRF token in the pfSense login page and tested with 2.1.3-RELEASE, 2.1.5-RELEASE, and 2.2.2-RELEASE.
 
 Usage
 =====
@@ -39,6 +41,9 @@ Usage
 
         -d | --directory <directory>
             Defaults to current directory.
+
+        -r | --rrd
+            Includes RRD data with the backup.
 
         -f | --file <file>
             Defaults to 'pfsense-backup.xml'
