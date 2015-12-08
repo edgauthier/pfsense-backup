@@ -9,6 +9,10 @@ import urllib2
 import cookielib
 from BeautifulSoup import BeautifulSoup
 
+import ssl
+if hasattr(ssl, '_create_unverified_context'):
+    ssl._create_default_https_context = ssl._create_unverified_context
+
 class PFSenseBackup(object):
     """
     Authenticates with a pfSense installation and exports the configuration.
