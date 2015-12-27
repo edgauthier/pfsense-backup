@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 import sys
 import os
@@ -8,6 +8,10 @@ import urllib
 import urllib2
 import cookielib
 from BeautifulSoup import BeautifulSoup
+
+import ssl
+if hasattr(ssl, '_create_unverified_context'):
+    ssl._create_default_https_context = ssl._create_unverified_context
 
 class PFSenseBackup(object):
     """
