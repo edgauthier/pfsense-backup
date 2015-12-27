@@ -9,6 +9,10 @@ import urllib2
 import cookielib
 from BeautifulSoup import BeautifulSoup
 
+
+# Most pfSense systems are deployed using a self-signed certificate
+# Patch SSL verification to trust self-signed certs if necessary
+#
 import ssl
 if hasattr(ssl, '_create_unverified_context'):
     ssl._create_default_https_context = ssl._create_unverified_context
