@@ -20,7 +20,7 @@ Requires BeautifulSoup to be installed:
 Compatability
 =============
 
-This has been updated to support the new CSRF token in the pfSense login page and tested with 2.1.3-RELEASE, 2.1.5-RELEASE, and 2.2.2-RELEASE.
+This has been updated to support the new CSRF token in the pfSense login page as well as backup page. It has most recently been tested with the 2.3-RELEASE, but should also work with previous releases as well.
 
 Usage
 =====

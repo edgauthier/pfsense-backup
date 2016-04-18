@@ -35,7 +35,8 @@ class PFSenseBackup(object):
     def backup_config(self, directory = None, target_file = None, rrd = None):
         backup_page = self.server + '/diag_backup.php'
         backup_file = self._get_backup_file(directory, target_file)
-        backup_options = self._get_backup_options(rrd)
+        csrf_token = self._get_csrf_token(backup_page)
+        backup_options = self._get_backup_options(rrd, csrf_token)
         with open(backup_file, 'w') as output:
             resp = self.site.open(backup_page, backup_options)
             output.writelines(resp)
@@ -48,8 +49,9 @@ class PFSenseBackup(object):
             backup_file = os.path.join(directory, backup_file)
         return backup_file
 
-    def _get_backup_options(self, rrd):
+    def _get_backup_options(self, rrd, csrf_token):
         options = {}
+        options['__csrf_magic'] = csrf_token
         options['backuparea'] = '' # Backup everything
         if rrd:				
             options['donotbackuprrd'] = '' # Clear the option to skip rrd data if we want to include it
