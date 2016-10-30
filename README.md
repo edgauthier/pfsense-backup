@@ -13,9 +13,9 @@ pfSense configuration and stastics on a regular basis.
 Requirements
 ============
 
-Requires BeautifulSoup to be installed:
+Requires BeautifulSoup4 to be installed:
 
-    pip install BeautifulSoup
+    pip install BeautifulSoup4
 
 Compatability
 =============

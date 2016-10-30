@@ -7,7 +7,7 @@ import getpass
 import urllib
 import urllib2
 import cookielib
-from BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 
 
 # Most pfSense systems are deployed using a self-signed certificate
@@ -67,7 +67,7 @@ class PFSenseBackup(object):
         csrf_input = parsed.body.find('input', attrs={'name':'__csrf_magic'})
         csrf_token = None
         try:
-            csrf_token = [v for n, v in csrf_input.attrs if n == 'value'][0]
+            csrf_token = csrf_input.attrs['value']
         except IndexError:
             pass
         return csrf_token
