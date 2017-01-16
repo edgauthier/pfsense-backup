@@ -96,7 +96,7 @@ def _usage():
 
         -s <server url> | --server <server url>
             The base URL for the pfSense installation.
-            Example: https://pfsense.example.com/
+            Example: https://pfsense.example.com
 
         -u <username> | --username <username>
         
@@ -157,6 +157,9 @@ def _options(args):
         username = raw_input('Username: ')
     if not password:
         password = getpass.getpass('Password: ')
+
+    # remove trailing slash from server path if present
+    server = server.rstrip('/')
 
     return (server, username, password, directory, target_file, rrd)
 

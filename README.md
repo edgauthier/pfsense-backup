@@ -33,7 +33,7 @@ Usage
 
         -s <server url> | --server <server url>
             The base URL for the pfSense installation.
-            Example: https://pfsense.example.com/
+            Example: https://pfsense.example.com
 
         -u <username> | --username <username>
         
