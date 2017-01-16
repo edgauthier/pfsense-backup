@@ -22,11 +22,12 @@ class PFSenseBackup(object):
     Authenticates with a pfSense installation and exports the configuration.
     """
 
-    def __init__(self, server, username, password):
+    def __init__(self, server, timeout, username, password):
         """
         Authenticates with the pfSense server.
         """
         self.server = server
+        self.timeout = timeout
         cj = cookielib.CookieJar()
         cookies = urllib2.HTTPCookieProcessor(cj)
         self.site = urllib2.build_opener(cookies)
@@ -38,8 +39,13 @@ class PFSenseBackup(object):
         csrf_token = self._get_csrf_token(backup_page)
         backup_options = self._get_backup_options(rrd, csrf_token)
         with open(backup_file, 'w') as output:
-            resp = self.site.open(backup_page, backup_options)
-            output.writelines(resp)
+            try:
+                resp = self.site.open(backup_page, backup_options, self.timeout)
+                output.writelines(resp)
+            except Exception as e:
+                print "Error backing up configuration: {0}".format(e)
+                sys.exit(1)
+                
 
     def _get_backup_file(self, directory, target_file):
         backup_file = target_file
@@ -61,7 +67,11 @@ class PFSenseBackup(object):
         return urllib.urlencode(options)
 
     def _get_csrf_token(self, page):
-        result = self.site.open(page)
+        try:
+            result = self.site.open(page, timeout = self.timeout)
+        except Exception as e:
+            print "Error loading page: {0}".format(e)
+            sys.exit(1)
         html = result.read()
         parsed = BeautifulSoup(html, 'html.parser')
         csrf_input = parsed.body.find('input', attrs={'name':'__csrf_magic'})
@@ -81,7 +91,11 @@ class PFSenseBackup(object):
         input_params['usernamefld'] = username
         input_params['passwordfld'] = password
         login_data = urllib.urlencode(input_params)
-        result = self.site.open(login_page, login_data)
+        try:
+            result = self.site.open(login_page, login_data, self.timeout)
+        except Exception as e:
+            print "Error logging in: {0}".format(e)
+            sys.exit(1)
         if "username or password incorrect" in result.read().lower():
             print "Invalid username or password"
             sys.exit(1)
@@ -97,6 +111,9 @@ def _usage():
         -s <server url> | --server <server url>
             The base URL for the pfSense installation.
             Example: https://pfsense.example.com
+        
+        -t <seconds> | --timeout <seconds>
+            Timeout for network requests.
 
         -u <username> | --username <username>
         
@@ -117,18 +134,25 @@ def _options(args):
     """Processes command line arguments"""
 
     try:
-        opts, args = getopt.gnu_getopt(args, 's:u:p:d:f:rh',['server=','username=','password=','directory=','file=','rrd','help'])
+        opts, args = getopt.gnu_getopt(args, 's:t:u:p:d:f:rh',
+          ['server=', 'timeout=', 'username=', 'password=', 'directory=', 'file=', 'rrd', 'help'])
     except getopt.GetoptError, e:
         print str(e)
         _usage()
         sys.exit(2)
 
     # Defaults
-    server = username = password = directory = target_file = rrd = None
+    server = timeout = username = password = directory = target_file = rrd = None
     
     for o,v in opts:
         if o in ('-s', '--server'):
             server = v
+        elif o in ('-t', '--timeout'):
+            try:
+                timeout = int(v)
+            except: 
+                print "Timeout specified is not an integer."
+                sys.exit(2)
         elif o in ('-u', '--username'):
             username = v
         elif o in ('-p', '--password'):
@@ -161,9 +185,9 @@ def _options(args):
     # remove trailing slash from server path if present
     server = server.rstrip('/')
 
-    return (server, username, password, directory, target_file, rrd)
+    return (server, timeout, username, password, directory, target_file, rrd)
 
 if __name__ == '__main__':
-    server, username, password, directory, target_file, rrd = _options(sys.argv[1:])
-    exporter = PFSenseBackup(server,username,password)
+    server, timeout, username, password, directory, target_file, rrd = _options(sys.argv[1:])
+    exporter = PFSenseBackup(server, timeout, username, password)
     exporter.backup_config(directory, target_file, rrd)

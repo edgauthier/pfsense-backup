@@ -34,6 +34,9 @@ Usage
         -s <server url> | --server <server url>
             The base URL for the pfSense installation.
             Example: https://pfsense.example.com
+            
+        -t <seconds> | --timeout <seconds>
+            Timeout for network requests.
 
         -u <username> | --username <username>
         
