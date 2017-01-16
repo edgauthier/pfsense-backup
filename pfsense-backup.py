@@ -63,7 +63,7 @@ class PFSenseBackup(object):
     def _get_csrf_token(self, page):
         result = self.site.open(page)
         html = result.read()
-        parsed = BeautifulSoup(html)
+        parsed = BeautifulSoup(html, 'html.parser')
         csrf_input = parsed.body.find('input', attrs={'name':'__csrf_magic'})
         csrf_token = None
         try:
