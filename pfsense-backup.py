@@ -63,7 +63,7 @@ class PFSenseBackup(object):
             options['donotbackuprrd'] = '' # Clear the option to skip rrd data if we want to include it
         else:
             options['donotbackuprrd'] = 'on' # otherwise, make sure it's enabled
-        options['Submit'] = 'Download configuration'
+        options['download'] = 'Download'
         return urllib.urlencode(options)
 
     def _get_csrf_token(self, page):
